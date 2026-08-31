@@ -1,14 +1,25 @@
 package models
 
 import (
-	base "padi-template/app/Models/Base"
+	"time"
+
 	"github.com/wibiesana/padi-core/auth"
 	"github.com/wibiesana/padi-core/model"
 	"github.com/wibiesana/padi-core/query"
 )
 
 type User struct {
-	base.User
+	ID        uint       `db:"id" json:"id"`
+	Name      string     `db:"name" json:"name" validate:"required"`
+	Email     string     `db:"email" json:"email" validate:"required,email"`
+	Password  string     `db:"password" json:"password,omitempty" validate:"required"`
+	Role      string     `db:"role" json:"role"`
+	CreatedAt *time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt *time.Time `db:"updated_at" json:"updated_at"`
+}
+
+func (User) TableName() string {
+	return "users"
 }
 
 // Find finds user by ID

@@ -36,4 +36,4 @@ require (
 	modernc.org/sqlite v1.57.0 // indirect
 )
 
-replace github.com/wibiesana/padi-core => ../padi_core
+replace github.com/wibiesana/padi-core => ../padi_go_core

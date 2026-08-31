@@ -56,6 +56,7 @@ func RegisterRoutes(r *router.Router) {
 		v1.Route("/users", func(r chi.Router) {
 			userCtrl := controllers.NewUserController()
 			r.Get("/", userCtrl.Index)
+			r.Get("/all", userCtrl.All)
 			r.Post("/", userCtrl.Store)
 			r.Get("/{id}", userCtrl.Show)
 			r.Put("/{id}", userCtrl.Update)
