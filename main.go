@@ -1,0 +1,52 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"net/http"
+	"time"
+
+	routes "padi-template/app/Routes"
+	_ "padi-template/database/migrations"
+	"github.com/wibiesana/padi-core/config"
+	"github.com/wibiesana/padi-core/database"
+	"github.com/wibiesana/padi-core/migrator"
+	"github.com/wibiesana/padi-core/router"
+)
+
+func main() {
+	cfg := config.Load()
+
+	// Connect to Database
+	db, err := database.Connect(cfg)
+	if err != nil {
+		log.Fatalf("❌ Database connection error: %v", err)
+	}
+	log.Printf("🔌 Connected to database [%s]", cfg.DBConnection)
+
+	// Run pending migrations in development automatically
+	if cfg.AppEnv == "development" {
+		if err := migrator.RunPending(db); err != nil {
+			log.Printf("⚠️ Migration notice: %v", err)
+		}
+	}
+
+	// Initialize Router & Register Routes
+	r := router.New(cfg)
+	routes.RegisterRoutes(r)
+
+	addr := fmt.Sprintf(":%s", cfg.AppPort)
+	log.Printf("🌾 %s running on http://localhost%s (Env: %s)", cfg.AppName, addr, cfg.AppEnv)
+
+	server := &http.Server{
+		Addr:         addr,
+		Handler:      r,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	}
+
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("Server error: %v", err)
+	}
+}

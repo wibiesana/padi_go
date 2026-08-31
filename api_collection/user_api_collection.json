@@ -1,0 +1,142 @@
+{
+  "info": {
+    "description": "REST API endpoints for User resource",
+    "name": "User API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get All Users (Paginated)",
+      "request": {
+        "header": [],
+        "method": "GET",
+        "url": {
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "users"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            },
+            {
+              "key": "per_page",
+              "value": "15"
+            },
+            {
+              "key": "search",
+              "value": ""
+            },
+            {
+              "key": "sort",
+              "value": "id"
+            },
+            {
+              "key": "order",
+              "value": "desc"
+            }
+          ],
+          "raw": "{{base_url}}/v1/users?page=1\u0026per_page=15\u0026search=\u0026sort=id\u0026order=desc"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Single User by ID",
+      "request": {
+        "header": [],
+        "method": "GET",
+        "url": {
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "users",
+            "1"
+          ],
+          "raw": "{{base_url}}/v1/users/1"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create User",
+      "request": {
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"Sample email\",\n    \"name\": \"Sample name\",\n    \"password\": \"Sample password\",\n    \"role\": \"Sample role\"\n}"
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "method": "POST",
+        "url": {
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "users"
+          ],
+          "raw": "{{base_url}}/v1/users"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update User",
+      "request": {
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"Sample email\",\n    \"name\": \"Sample name\",\n    \"password\": \"Sample password\",\n    \"role\": \"Sample role\"\n}"
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "method": "PUT",
+        "url": {
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "users",
+            "1"
+          ],
+          "raw": "{{base_url}}/v1/users/1"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete User",
+      "request": {
+        "header": [],
+        "method": "DELETE",
+        "url": {
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "v1",
+            "users",
+            "1"
+          ],
+          "raw": "{{base_url}}/v1/users/1"
+        }
+      },
+      "response": []
+    }
+  ]
+}
