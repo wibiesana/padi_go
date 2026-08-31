@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	models "padi-template/app/Models"
+	"github.com/wibiesana/padi-core/activerecord"
 	"github.com/wibiesana/padi-core/query"
 	"github.com/wibiesana/padi-core/response"
 	"github.com/wibiesana/padi-core/router"
@@ -20,10 +21,8 @@ func NewUserController() *UserController {
 // Index lists records with pagination and search
 func (c *UserController) Index(w http.ResponseWriter, r *http.Request) {
 	opts := query.ParseOptions(r)
-	var records []models.User
-
 	searchColumns := []string{"name", "email", "role"}
-	meta, err := query.New("users").Paginate(opts, searchColumns, &records)
+	meta, records, err := activerecord.Paginate[models.User](opts, searchColumns...)
 	if err != nil {
 		response.InternalServerError(w, "Failed to retrieve User list")
 		return
@@ -34,14 +33,13 @@ func (c *UserController) Index(w http.ResponseWriter, r *http.Request) {
 
 // All retrieves all users without pagination
 func (c *UserController) All(w http.ResponseWriter, r *http.Request) {
-	var records []models.User
-	err := query.New("users").All(&records)
+	records, err := activerecord.All[models.User]()
 	if err != nil {
 		response.InternalServerError(w, "Failed to retrieve all users")
 		return
 	}
 
-	response.Success(w, records, "All users retrieved successfully")
+	response.Items(w, records, "All users retrieved successfully")
 }
 
 // Show retrieves a single record by ID
@@ -52,9 +50,9 @@ func (c *UserController) Show(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	item, err := (models.User{}).Find(id)
-	if err != nil || item == nil || item.ID == 0 {
-		if err == sql.ErrNoRows {
+	item, err := activerecord.Find[models.User](id)
+	if err != nil || item == nil {
+		if err == sql.ErrNoRows || item == nil {
 			response.NotFound(w, "User not found")
 			return
 		}
@@ -62,7 +60,7 @@ func (c *UserController) Show(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.Success(w, item, "User retrieved successfully")
+	response.Item(w, item, "User retrieved successfully")
 }
 
 // Store creates a new record
@@ -139,7 +137,7 @@ func (c *UserController) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.Success(w, item, "User updated successfully")
+	response.Item(w, item, "User updated successfully")
 }
 
 // Destroy deletes a record

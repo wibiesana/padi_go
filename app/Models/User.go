@@ -3,9 +3,8 @@ package models
 import (
 	"time"
 
+	"github.com/wibiesana/padi-core/activerecord"
 	"github.com/wibiesana/padi-core/auth"
-	"github.com/wibiesana/padi-core/model"
-	"github.com/wibiesana/padi-core/query"
 )
 
 type User struct {
@@ -24,26 +23,32 @@ func (User) TableName() string {
 
 // Find finds user by ID
 func (User) Find(id interface{}) (*User, error) {
-	var u User
-	err := query.New("users").Where("id", id).First(&u)
-	return &u, err
+	return activerecord.Find[User](id)
+}
+
+// FindOrFail finds user by ID or returns error if not found
+func (User) FindOrFail(id interface{}) (*User, error) {
+	return activerecord.FindOrFail[User](id)
+}
+
+// All retrieves all users
+func (User) All(columns ...string) ([]User, error) {
+	return activerecord.All[User](columns...)
 }
 
 // FindByEmail finds user by email
 func (User) FindByEmail(email string) (*User, error) {
-	var u User
-	err := query.New("users").Where("email", email).First(&u)
-	return &u, err
+	return activerecord.FindBy[User]("email", email)
 }
 
 // Save saves or updates user
 func (u *User) Save() error {
-	return model.Save(u)
+	return activerecord.Save(u)
 }
 
 // Delete removes user
 func (u *User) Delete() error {
-	return model.Delete(u)
+	return activerecord.DeleteModel(u)
 }
 
 // SetPassword hashes and sets user password

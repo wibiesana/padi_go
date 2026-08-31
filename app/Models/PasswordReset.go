@@ -3,8 +3,8 @@ package models
 import (
 	"time"
 
+	"github.com/wibiesana/padi-core/activerecord"
 	"github.com/wibiesana/padi-core/database"
-	"github.com/wibiesana/padi-core/model"
 	"github.com/wibiesana/padi-core/query"
 )
 
@@ -47,5 +47,5 @@ func (PasswordReset) DeleteByEmail(email string) error {
 
 // Save inserts password reset record
 func (pr *PasswordReset) Save() error {
-	return model.Save(pr)
+	return activerecord.Save(pr)
 }

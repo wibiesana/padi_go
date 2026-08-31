@@ -56,7 +56,7 @@ func TestAuthAndUserEndpoints(t *testing.T) {
 		"password": "password123",
 	}
 	body, _ := json.Marshal(regPayload)
-	req := httptest.NewRequest(http.MethodPost, "/v1/auth/register", bytes.NewBuffer(body))
+	req := httptest.NewRequest(http.MethodPost, "/auth/register", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -67,14 +67,14 @@ func TestAuthAndUserEndpoints(t *testing.T) {
 
 	var regResponse struct {
 		Success bool `json:"success"`
-		Data    struct {
+		Item    struct {
 			Token string `json:"token"`
-		} `json:"data"`
+		} `json:"item"`
 	}
-	if err := json.Unmarshal(w.Body.Bytes(), &regResponse); err != nil || regResponse.Data.Token == "" {
+	if err := json.Unmarshal(w.Body.Bytes(), &regResponse); err != nil || regResponse.Item.Token == "" {
 		t.Fatalf("Failed to parse token from register response: %v", err)
 	}
-	token := regResponse.Data.Token
+	token := regResponse.Item.Token
 
 	// 2. Test Login
 	loginPayload := map[string]string{
@@ -82,7 +82,7 @@ func TestAuthAndUserEndpoints(t *testing.T) {
 		"password": "password123",
 	}
 	body, _ = json.Marshal(loginPayload)
-	req = httptest.NewRequest(http.MethodPost, "/v1/auth/login", bytes.NewBuffer(body))
+	req = httptest.NewRequest(http.MethodPost, "/auth/login", bytes.NewBuffer(body))
 	req.Header.Set("Content-Type", "application/json")
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)
@@ -92,21 +92,21 @@ func TestAuthAndUserEndpoints(t *testing.T) {
 	}
 
 	// 3. Test Me with Bearer Token
-	req = httptest.NewRequest(http.MethodGet, "/v1/auth/me", nil)
+	req = httptest.NewRequest(http.MethodGet, "/auth/me", nil)
 	req.Header.Set("Authorization", "Bearer "+token)
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("Expected 200 OK on /v1/auth/me, got %d. Body: %s", w.Code, w.Body.String())
+		t.Fatalf("Expected 200 OK on /auth/me, got %d. Body: %s", w.Code, w.Body.String())
 	}
 
 	// 4. Test User CRUD Index
-	req = httptest.NewRequest(http.MethodGet, "/v1/users?page=1&per_page=10", nil)
+	req = httptest.NewRequest(http.MethodGet, "/users?page=1&per_page=10", nil)
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("Expected 200 OK on /v1/users, got %d", w.Code)
+		t.Fatalf("Expected 200 OK on /users, got %d", w.Code)
 	}
 }
