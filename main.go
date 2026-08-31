@@ -8,10 +8,10 @@ import (
 
 	routes "padi-template/app/Routes"
 	_ "padi-template/database/migrations"
-	"github.com/wibiesana/padi-core/config"
-	"github.com/wibiesana/padi-core/database"
-	"github.com/wibiesana/padi-core/migrator"
-	"github.com/wibiesana/padi-core/router"
+	"github.com/wibiesana/padi_go_core/config"
+	"github.com/wibiesana/padi_go_core/database"
+	"github.com/wibiesana/padi_go_core/migrator"
+	"github.com/wibiesana/padi_go_core/router"
 )
 
 func main() {

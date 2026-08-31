@@ -3,8 +3,8 @@ package models
 import (
 	"time"
 
-	"github.com/wibiesana/padi-core/activerecord"
-	"github.com/wibiesana/padi-core/auth"
+	"github.com/wibiesana/padi_go_core/activerecord"
+	"github.com/wibiesana/padi_go_core/auth"
 )
 
 type User struct {

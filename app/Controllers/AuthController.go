@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	models "padi-template/app/Models"
-	"github.com/wibiesana/padi-core/auth"
-	"github.com/wibiesana/padi-core/middleware"
-	"github.com/wibiesana/padi-core/response"
-	"github.com/wibiesana/padi-core/validator"
+	"github.com/wibiesana/padi_go_core/auth"
+	"github.com/wibiesana/padi_go_core/middleware"
+	"github.com/wibiesana/padi_go_core/response"
+	"github.com/wibiesana/padi_go_core/validator"
 )
 
 type AuthController struct{}

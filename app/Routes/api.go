@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	controllers "padi-template/app/Controllers"
-	"github.com/wibiesana/padi-core/middleware"
-	"github.com/wibiesana/padi-core/response"
-	"github.com/wibiesana/padi-core/router"
+	"github.com/wibiesana/padi_go_core/middleware"
+	"github.com/wibiesana/padi_go_core/response"
+	"github.com/wibiesana/padi_go_core/router"
 
 	"github.com/go-chi/chi/v5"
 )

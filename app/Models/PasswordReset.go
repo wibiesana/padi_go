@@ -3,9 +3,9 @@ package models
 import (
 	"time"
 
-	"github.com/wibiesana/padi-core/activerecord"
-	"github.com/wibiesana/padi-core/database"
-	"github.com/wibiesana/padi-core/query"
+	"github.com/wibiesana/padi_go_core/activerecord"
+	"github.com/wibiesana/padi_go_core/database"
+	"github.com/wibiesana/padi_go_core/query"
 )
 
 // PasswordReset is a standalone core model (Not generated in Base, not overwritten)

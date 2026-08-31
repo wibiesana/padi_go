@@ -7,9 +7,9 @@ import (
 	"time"
 
 	models "padi-template/app/Models"
-	"github.com/wibiesana/padi-core/config"
-	"github.com/wibiesana/padi-core/response"
-	"github.com/wibiesana/padi-core/validator"
+	"github.com/wibiesana/padi_go_core/config"
+	"github.com/wibiesana/padi_go_core/response"
+	"github.com/wibiesana/padi_go_core/validator"
 )
 
 type PasswordResetController struct{}

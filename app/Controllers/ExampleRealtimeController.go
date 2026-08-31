@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/wibiesana/padi-core/realtime"
-	"github.com/wibiesana/padi-core/response"
-	"github.com/wibiesana/padi-core/router"
-	"github.com/wibiesana/padi-core/validator"
+	"github.com/wibiesana/padi_go_core/realtime"
+	"github.com/wibiesana/padi_go_core/response"
+	"github.com/wibiesana/padi_go_core/router"
+	"github.com/wibiesana/padi_go_core/validator"
 )
 
 type ExampleRealtimeController struct{}

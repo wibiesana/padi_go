@@ -3,8 +3,8 @@ package migrations
 import (
 	"database/sql"
 
-	"github.com/wibiesana/padi-core/database"
-	"github.com/wibiesana/padi-core/migrator"
+	"github.com/wibiesana/padi_go_core/database"
+	"github.com/wibiesana/padi_go_core/migrator"
 )
 
 func init() {

@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/go-chi/chi/v5 v5.3.2
 	github.com/spf13/cobra v1.9.1
-	github.com/wibiesana/padi-core v0.0.0
+	github.com/wibiesana/padi_go_core v0.0.0
 )
 
 require (
@@ -36,4 +36,4 @@ require (
 	modernc.org/sqlite v1.57.0 // indirect
 )
 
-replace github.com/wibiesana/padi-core => ../padi_go_core
+replace github.com/wibiesana/padi_go_core => ../padi_go_core
