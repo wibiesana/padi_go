@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Padi REST API Collection",
-    "description": "Comprehensive Postman collection for Padi Go REST API Framework (Auth & User CRUD)",
+    "description": "Comprehensive Postman collection for Padi Go REST API Framework (Auth & Protected User CRUD)",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -28,8 +28,12 @@
               "script": {
                 "exec": [
                   "var jsonData = pm.response.json();",
-                  "if (jsonData.data && jsonData.data.token) {",
-                  "    pm.collectionVariables.set('token', jsonData.data.token);",
+                  "var token = (jsonData.data && jsonData.data.token) ? jsonData.data.token : (jsonData.token ? jsonData.token : null);",
+                  "if (token) {",
+                  "    pm.collectionVariables.set('token', token);",
+                  "    pm.environment.set('token', token);",
+                  "    pm.globals.set('token', token);",
+                  "    console.log('JWT Token successfully set:', token);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -69,8 +73,12 @@
               "script": {
                 "exec": [
                   "var jsonData = pm.response.json();",
-                  "if (jsonData.data && jsonData.data.token) {",
-                  "    pm.collectionVariables.set('token', jsonData.data.token);",
+                  "var token = (jsonData.data && jsonData.data.token) ? jsonData.data.token : (jsonData.token ? jsonData.token : null);",
+                  "if (token) {",
+                  "    pm.collectionVariables.set('token', token);",
+                  "    pm.environment.set('token', token);",
+                  "    pm.globals.set('token', token);",
+                  "    console.log('JWT Token successfully set:', token);",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -184,13 +192,18 @@
       ]
     },
     {
-      "name": "Users",
+      "name": "Users (Protected)",
       "item": [
         {
           "name": "Get All Users (Paginated)",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/users?page=1&per_page=15&search=&sort=id&order=desc",
               "host": [
@@ -229,7 +242,12 @@
           "name": "Get All Users (Unpaginated)",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/users/all",
               "host": [
@@ -247,7 +265,12 @@
           "name": "Get Single User by ID",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/users/1",
               "host": [
@@ -269,6 +292,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
               }
             ],
             "body": {
@@ -295,6 +322,10 @@
               {
                 "key": "Content-Type",
                 "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
               }
             ],
             "body": {
@@ -318,7 +349,12 @@
           "name": "Delete User",
           "request": {
             "method": "DELETE",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
             "url": {
               "raw": "{{base_url}}/users/1",
               "host": [

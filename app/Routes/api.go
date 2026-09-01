@@ -50,22 +50,20 @@ func RegisterRoutes(r *router.Router) {
 		})
 	})
 
-	// Users CRUD Resource
-	r.Mux.Route("/users", func(r chi.Router) {
-		userCtrl := controllers.NewUserController()
-		r.Get("/", userCtrl.Index)
-		r.Get("/all", userCtrl.All)
-		r.Post("/", userCtrl.Store)
-		r.Get("/{id}", userCtrl.Show)
-		r.Put("/{id}", userCtrl.Update)
-		r.Delete("/{id}", userCtrl.Destroy)
-	})
-
-	// Protected API Resources
+	// Protected API Resources (Requires JWT Bearer Token)
 	r.Mux.Group(func(protected chi.Router) {
 		protected.Use(middleware.AuthRequired)
 
-		// Example: Protected resource groups or generated CRUDs
+		// Users CRUD Resource
+		protected.Route("/users", func(r chi.Router) {
+			userCtrl := controllers.NewUserController()
+			r.Get("/", userCtrl.Index)
+			r.Get("/all", userCtrl.All)
+			r.Post("/", userCtrl.Store)
+			r.Get("/{id}", userCtrl.Show)
+			r.Put("/{id}", userCtrl.Update)
+			r.Delete("/{id}", userCtrl.Destroy)
+		})
 	})
 
 	// Realtime SSE Pub/Sub Endpoints
