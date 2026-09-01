@@ -10,11 +10,12 @@ import (
 
 // PasswordReset is a standalone core model (Not generated in Base, not overwritten)
 type PasswordReset struct {
-	ID        uint      `db:"id" json:"id"`
-	Email     string    `db:"email" json:"email" validate:"required,email"`
-	Token     string    `db:"token" json:"token" validate:"required"`
-	ExpiresAt int64     `db:"expires_at" json:"expires_at"`
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
+	ID        uint       `db:"id" json:"id"`
+	Email     string     `db:"email" json:"email" validate:"required,email"`
+	Token     string     `db:"token" json:"token" validate:"required"`
+	ExpiresAt int64      `db:"expires_at" json:"expires_at"`
+	CreatedBy *uint      `db:"created_by" json:"created_by,omitempty"`
+	CreatedAt *time.Time `db:"created_at" json:"created_at"`
 }
 
 func (PasswordReset) TableName() string {

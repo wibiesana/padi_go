@@ -45,8 +45,13 @@ func RegisterRoutes(r *router.Router) {
 	r.Mux.Route("/auth", func(auth chi.Router) {
 		auth.Post("/register", authCtrl.Register)
 		auth.Post("/login", authCtrl.Login)
+		auth.Post("/refresh", authCtrl.Refresh)
+		auth.Post("/logout", authCtrl.Logout)
 
 		pwdCtrl := controllers.NewPasswordResetController()
+		// Support both formats for 100% interchangeability
+		auth.Post("/forgot-password", pwdCtrl.ForgotPassword)
+		auth.Post("/reset-password", pwdCtrl.ResetPassword)
 		auth.Post("/password/forgot", pwdCtrl.ForgotPassword)
 		auth.Post("/password/reset", pwdCtrl.ResetPassword)
 

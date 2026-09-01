@@ -19,7 +19,8 @@ func NewPasswordResetController() *PasswordResetController {
 }
 
 type ForgotPasswordRequest struct {
-	Email string `json:"email" validate:"required,email"`
+	Email string `json:"email"`
+	Login string `json:"login"`
 }
 
 type ResetPasswordRequest struct {
@@ -37,7 +38,19 @@ func (c *PasswordResetController) ForgotPassword(w http.ResponseWriter, r *http.
 		return
 	}
 
-	user, err := (models.User{}).FindByEmail(req.Email)
+	identifier := req.Email
+	if identifier == "" {
+		identifier = req.Login
+	}
+
+	if identifier == "" {
+		response.UnprocessableEntity(w, map[string]string{
+			"email": "Email or username is required",
+		}, "Validation failed")
+		return
+	}
+
+	user, err := (models.User{}).FindByLogin(identifier)
 	if err != nil || user == nil || user.ID == 0 {
 		// Secretive: don't reveal if user exists for security
 		response.Success(w, map[string]string{
@@ -52,10 +65,10 @@ func (c *PasswordResetController) ForgotPassword(w http.ResponseWriter, r *http.
 	token := hex.EncodeToString(tokenBytes)
 	expiresAt := time.Now().Unix() + 3600 // 1 hour expiration
 
-	_ = (models.PasswordReset{}).DeleteByEmail(req.Email)
+	_ = (models.PasswordReset{}).DeleteByEmail(user.Email)
 
 	resetEntry := models.PasswordReset{}
-	resetEntry.Email = req.Email
+	resetEntry.Email = user.Email
 	resetEntry.Token = token
 	resetEntry.ExpiresAt = expiresAt
 

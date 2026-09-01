@@ -8,13 +8,20 @@ import (
 )
 
 type User struct {
-	ID        uint       `db:"id" json:"id"`
-	Name      string     `db:"name" json:"name" validate:"required"`
-	Email     string     `db:"email" json:"email" validate:"required,email"`
-	Password  string     `db:"password" json:"password,omitempty" validate:"required"`
-	Role      string     `db:"role" json:"role"`
-	CreatedAt *time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt *time.Time `db:"updated_at" json:"updated_at"`
+	ID              uint       `db:"id" json:"id"`
+	Name            *string    `db:"name" json:"name,omitempty"`
+	Username        *string    `db:"username" json:"username,omitempty"`
+	Email           string     `db:"email" json:"email" validate:"required,email"`
+	Password        string     `db:"password" json:"password,omitempty" validate:"required"`
+	Role            string     `db:"role" json:"role"`
+	Status          string     `db:"status" json:"status,omitempty"`
+	EmailVerifiedAt *int64     `db:"email_verified_at" json:"email_verified_at,omitempty"`
+	RememberToken   *string    `db:"remember_token" json:"remember_token,omitempty"`
+	LastLoginAt     *int64     `db:"last_login_at" json:"last_login_at,omitempty"`
+	CreatedBy       *uint      `db:"created_by" json:"created_by,omitempty"`
+	UpdatedBy       *uint      `db:"updated_by" json:"updated_by,omitempty"`
+	CreatedAt       *time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt       *time.Time `db:"updated_at" json:"updated_at"`
 }
 
 func (User) TableName() string {
@@ -39,6 +46,26 @@ func (User) All(columns ...string) ([]User, error) {
 // FindByEmail finds user by email
 func (User) FindByEmail(email string) (*User, error) {
 	return activerecord.FindBy[User]("email", email)
+}
+
+// FindByLogin finds user by username, email, or name
+func (User) FindByLogin(login string) (*User, error) {
+	// First try exact email match
+	if u, err := activerecord.FindBy[User]("email", login); err == nil && u != nil && u.ID > 0 {
+		return u, nil
+	}
+
+	// Try finding by username
+	if u, err := activerecord.FindBy[User]("username", login); err == nil && u != nil && u.ID > 0 {
+		return u, nil
+	}
+
+	// Try finding by name
+	if u, err := activerecord.FindBy[User]("name", login); err == nil && u != nil && u.ID > 0 {
+		return u, nil
+	}
+
+	return nil, nil
 }
 
 // Save saves or updates user

@@ -88,7 +88,7 @@ func TestAuthAndUserEndpoints(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("Expected 200 OK on login, got %d", w.Code)
+		t.Fatalf("Expected 200 OK on login, got %d. Body: %s", w.Code, w.Body.String())
 	}
 
 	// 3. Test Me with Bearer Token
@@ -103,10 +103,11 @@ func TestAuthAndUserEndpoints(t *testing.T) {
 
 	// 4. Test User CRUD Index
 	req = httptest.NewRequest(http.MethodGet, "/users?page=1&per_page=10", nil)
+	req.Header.Set("Authorization", "Bearer "+token)
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
-		t.Fatalf("Expected 200 OK on /users, got %d", w.Code)
+		t.Fatalf("Expected 200 OK on /users, got %d. Body: %s", w.Code, w.Body.String())
 	}
 }

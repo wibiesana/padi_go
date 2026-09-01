@@ -8,6 +8,8 @@ require (
 	github.com/wibiesana/padi_go_core v0.0.2
 )
 
+replace github.com/wibiesana/padi_go_core => ../padi_go_core
+
 require (
 	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect

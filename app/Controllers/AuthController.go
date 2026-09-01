@@ -3,8 +3,10 @@ package controllers
 import (
 	"database/sql"
 	"net/http"
+	"time"
 
 	models "padi-template/app/Models"
+	"github.com/wibiesana/padi_go_core/activerecord"
 	"github.com/wibiesana/padi_go_core/auth"
 	"github.com/wibiesana/padi_go_core/middleware"
 	"github.com/wibiesana/padi_go_core/response"
@@ -25,13 +27,18 @@ type RegisterRequest struct {
 }
 
 type LoginRequest struct {
-	Email    string `json:"email" validate:"required,email"`
-	Password string `json:"password" validate:"required"`
+	Login      string `json:"login"`
+	Email      string `json:"email"`
+	Username   string `json:"username"`
+	Password   string `json:"password" validate:"required"`
+	RememberMe bool   `json:"remember_me"`
 }
 
 type AuthResponse struct {
-	User  models.User `json:"user"`
-	Token string      `json:"token"`
+	User          models.User `json:"user"`
+	Token         string      `json:"token"`
+	RememberToken *string     `json:"remember_token,omitempty"`
+	ExpiresIn     *int64      `json:"expires_in,omitempty"`
 }
 
 // Register creates a new user account and returns JWT token
@@ -49,12 +56,16 @@ func (c *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user := models.User{}
-	user.Name = req.Name
+	if req.Name != "" {
+		name := req.Name
+		user.Name = &name
+	}
 	user.Email = req.Email
 	user.Role = req.Role
 	if user.Role == "" {
 		user.Role = "user"
 	}
+	user.Status = "active"
 
 	if err := user.SetPassword(req.Password); err != nil {
 		response.InternalServerError(w, "Failed to hash password")
@@ -79,7 +90,7 @@ func (c *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 	}, "User registered successfully")
 }
 
-// Login authenticates user with email & password and returns JWT token
+// Login authenticates user with email/username & password and returns JWT token
 func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 	var req LoginRequest
 	if errs, err := validator.BindJSON(r, &req); err != nil {
@@ -87,16 +98,49 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := (models.User{}).FindByEmail(req.Email)
+	loginIdentifier := req.Login
+	if loginIdentifier == "" {
+		if req.Email != "" {
+			loginIdentifier = req.Email
+		} else if req.Username != "" {
+			loginIdentifier = req.Username
+		}
+	}
+
+	if loginIdentifier == "" {
+		response.UnprocessableEntity(w, map[string]string{
+			"login": "email or username is required",
+		}, "Validation failed")
+		return
+	}
+
+	user, err := (models.User{}).FindByLogin(loginIdentifier)
 	if err != nil || user == nil || user.ID == 0 {
-		response.Unauthorized(w, "Invalid email or password")
+		response.Unauthorized(w, "Invalid email/username or password")
 		return
 	}
 
 	if !user.VerifyPassword(req.Password) {
-		response.Unauthorized(w, "Invalid email or password")
+		response.Unauthorized(w, "Invalid email/username or password")
 		return
 	}
+
+	// Update last login
+	now := time.Now().Unix()
+	user.LastLoginAt = &now
+
+	var rememberToken *string
+	var expiresIn *int64
+
+	if req.RememberMe {
+		ttl := int64(365 * 24 * 3600) // 1 year
+		expiresIn = &ttl
+		rt := auth.GenerateSecureRandomString(32)
+		rememberToken = &rt
+		user.RememberToken = rememberToken
+	}
+
+	_ = user.Save()
 
 	token, err := auth.GenerateToken(user.ID, user.Email, user.Role)
 	if err != nil {
@@ -105,9 +149,47 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.Success(w, AuthResponse{
-		User:  *user,
-		Token: token,
+		User:          *user,
+		Token:         token,
+		RememberToken: rememberToken,
+		ExpiresIn:     expiresIn,
 	}, "Login successful")
+}
+
+// Refresh generates a new access token using remember_token
+func (c *AuthController) Refresh(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		RememberToken string `json:"remember_token" validate:"required"`
+	}
+	if errs, err := validator.BindJSON(r, &req); err != nil {
+		response.UnprocessableEntity(w, errs, "Validation failed")
+		return
+	}
+
+	user, err := activerecord.FindBy[models.User]("remember_token", req.RememberToken)
+	if err != nil || user == nil || user.ID == 0 {
+		response.Unauthorized(w, "Invalid or expired remember token")
+		return
+	}
+
+	token, err := auth.GenerateToken(user.ID, user.Email, user.Role)
+	if err != nil {
+		response.InternalServerError(w, "Failed to generate token")
+		return
+	}
+
+	ttl := int64(365 * 24 * 3600)
+	response.Success(w, AuthResponse{
+		User:          *user,
+		Token:         token,
+		RememberToken: user.RememberToken,
+		ExpiresIn:     &ttl,
+	}, "Token refreshed successfully")
+}
+
+// Logout invalidates user session
+func (c *AuthController) Logout(w http.ResponseWriter, r *http.Request) {
+	response.Success(w, nil, "Logout successful")
 }
 
 // Me returns currently authenticated user profile

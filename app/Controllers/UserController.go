@@ -117,7 +117,8 @@ func (c *UserController) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if updateData.Name != "" {
-		item.Name = updateData.Name
+		name := updateData.Name
+		item.Name = &name
 	}
 	if updateData.Email != "" {
 		item.Email = updateData.Email
