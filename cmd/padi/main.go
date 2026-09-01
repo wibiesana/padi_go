@@ -325,9 +325,43 @@ var initCmd = &cobra.Command{
 	},
 }
 
+var buildCmd = &cobra.Command{
+	Use:   "build",
+	Short: "Build production binary named according to APP_NAME in .env",
+	Run: func(cmd *cobra.Command, args []string) {
+		cfg := config.Load()
+		appName := "padi-app"
+		if cfg != nil && cfg.AppName != "" {
+			appName = strings.ToLower(strings.TrimSpace(cfg.AppName))
+			appName = strings.ReplaceAll(appName, " ", "-")
+			appName = strings.ReplaceAll(appName, "_", "-")
+		}
+
+		outputName := appName
+		// If running on Windows, add .exe suffix
+		if os.Getenv("GOOS") == "windows" || filepath.Separator == '\\' {
+			outputName += ".exe"
+		}
+
+		fmt.Printf("🔨 Building production binary: %s ...\n", outputName)
+
+		buildArgs := []string{"build", "-ldflags", "-s -w", "-o", outputName, "main.go"}
+		execCmd := exec.Command("go", buildArgs...)
+		execCmd.Stdout = os.Stdout
+		execCmd.Stderr = os.Stderr
+
+		if err := execCmd.Run(); err != nil {
+			log.Fatalf("❌ Build failed: %v", err)
+		}
+
+		fmt.Printf("✨ Successfully built %s!\n", outputName)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(initCmd)
 	rootCmd.AddCommand(serveCmd)
+	rootCmd.AddCommand(buildCmd)
 	rootCmd.AddCommand(migrateCmd)
 	rootCmd.AddCommand(migrateRollbackCmd)
 	rootCmd.AddCommand(generateCrudCmd)

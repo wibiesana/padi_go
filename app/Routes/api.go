@@ -1,9 +1,11 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 
 	controllers "padi-template/app/Controllers"
+	"github.com/wibiesana/padi_go_core/config"
 	"github.com/wibiesana/padi_go_core/middleware"
 	"github.com/wibiesana/padi_go_core/response"
 	"github.com/wibiesana/padi_go_core/router"
@@ -15,11 +17,16 @@ import (
 func RegisterRoutes(r *router.Router) {
 	// Root / Health check
 	r.Mux.Get("/", func(w http.ResponseWriter, req *http.Request) {
+		appName := "Padi REST API Framework (Go)"
+		if config.AppConfig != nil && config.AppConfig.AppName != "" {
+			appName = config.AppConfig.AppName
+		}
+
 		response.Success(w, map[string]interface{}{
-			"framework": "Padi REST API Framework (Go)",
+			"app_name":  appName,
 			"version":   "1.0.0",
 			"status":    "running",
-		}, "Welcome to Padi REST API Go Framework 🌾")
+		}, fmt.Sprintf("Welcome to %s 🌾", appName))
 	})
 
 	r.Mux.Get("/health", func(w http.ResponseWriter, req *http.Request) {
