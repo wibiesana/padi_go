@@ -12,11 +12,11 @@ type User struct {
 	Name            *string    `db:"name" json:"name,omitempty"`
 	Username        *string    `db:"username" json:"username,omitempty"`
 	Email           string     `db:"email" json:"email" validate:"required,email"`
-	Password        string     `db:"password" json:"password,omitempty" validate:"required"`
+	Password        string     `db:"password" json:"-" validate:"required"`
 	Role            string     `db:"role" json:"role"`
 	Status          string     `db:"status" json:"status,omitempty"`
 	EmailVerifiedAt *int64     `db:"email_verified_at" json:"email_verified_at,omitempty"`
-	RememberToken   *string    `db:"remember_token" json:"remember_token,omitempty"`
+	RememberToken   *string    `db:"remember_token" json:"-"`
 	LastLoginAt     *int64     `db:"last_login_at" json:"last_login_at,omitempty"`
 	CreatedBy       *uint      `db:"created_by" json:"created_by,omitempty"`
 	UpdatedBy       *uint      `db:"updated_by" json:"updated_by,omitempty"`
