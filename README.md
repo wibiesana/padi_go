@@ -38,7 +38,7 @@ Welcome to the **Padi REST API Go Framework** — a high-performance Go port of 
 
 ### 1. Clone Starter Template
 ```bash
-git clone https://github.com/wibiesana/padi_go_template.git my-api-project
+git clone https://github.com/wibiesana/padi_go.git my-api-project
 cd my-api-project
 ```
 
