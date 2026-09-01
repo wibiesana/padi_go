@@ -16,10 +16,10 @@ Welcome to the **Padi REST API Go Framework** — a high-performance Go port of 
 
 ---
 
-## ✨ Features (100% Feature Parity with Padi PHP)
+## ✨ Features
 
 - ⚡ **Zero-Bloat & Raw Speed**: Minimal latency HTTP pipeline powered by standard `database/sql`, `chi` router, and pure Go architecture (no external ORM dependencies).
-- 🌾 **Pure Native ActiveRecord & Fluent Query Builder**: Built-in `model.Save()`, `model.Delete()`, `(User{}).Find(id)`, `query.New("table").Where(...).Paginate(...)` matching Padi PHP semantics.
+- 🌾 **Pure Native ActiveRecord & Fluent Query Builder**: Built-in `model.Save()`, `model.Delete()`, `(User{}).Find(id)`, and `query.New("table").Where(...).Paginate(...)`.
 - 🛠️ **Signature Auto CRUD Generator**: Generate Base Models, Custom Models, Resources, Controllers, Routes, and Postman Collections in seconds from DB schema with `padi g <table_name>` or batch all tables with `padi ga`.
 - 🔐 **Security Built-In**: JWT Authentication, Bcrypt hashing, Request Rate Limiting, CORS management, and MIME content sniffing.
 - 📜 **Daily Rotating Structured Logger**: Dual output (stdout + `storage/logs/app-YYYY-MM-DD.log` & `error-YYYY-MM-DD.log`) with 14-day auto-retention and structured JSON context.
