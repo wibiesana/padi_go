@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"crypto/rand"
 	"database/sql"
+	"encoding/hex"
 	"net/http"
 	"time"
 
@@ -12,6 +14,12 @@ import (
 	"github.com/wibiesana/padi_go_core/response"
 	"github.com/wibiesana/padi_go_core/validator"
 )
+
+func generateSecureRandomString(length int) string {
+	bytes := make([]byte, length)
+	_, _ = rand.Read(bytes)
+	return hex.EncodeToString(bytes)[:length]
+}
 
 type AuthController struct{}
 
@@ -135,7 +143,7 @@ func (c *AuthController) Login(w http.ResponseWriter, r *http.Request) {
 	if req.RememberMe {
 		ttl := int64(365 * 24 * 3600) // 1 year
 		expiresIn = &ttl
-		rt := auth.GenerateSecureRandomString(32)
+		rt := generateSecureRandomString(32)
 		rememberToken = &rt
 		user.RememberToken = rememberToken
 	}
