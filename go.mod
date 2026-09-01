@@ -3,7 +3,6 @@ module padi-template
 go 1.25.0
 
 require (
-	github.com/go-chi/chi/v5 v5.3.2
 	github.com/spf13/cobra v1.9.1
 	github.com/wibiesana/padi_go_core v0.0.3
 )
@@ -12,6 +11,7 @@ require (
 	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.13 // indirect
+	github.com/go-chi/chi/v5 v5.3.2 // indirect
 	github.com/go-chi/cors v1.2.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect

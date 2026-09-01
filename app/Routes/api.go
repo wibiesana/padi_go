@@ -9,14 +9,12 @@ import (
 	"github.com/wibiesana/padi_go_core/middleware"
 	"github.com/wibiesana/padi_go_core/response"
 	"github.com/wibiesana/padi_go_core/router"
-
-	"github.com/go-chi/chi/v5"
 )
 
 // RegisterRoutes registers all application routes
 func RegisterRoutes(r *router.Router) {
 	// Root / Health check
-	r.Mux.Get("/", func(w http.ResponseWriter, req *http.Request) {
+	r.Get("/", func(w http.ResponseWriter, req *http.Request) {
 		appName := "Padi REST API Framework (Go)"
 		if config.AppConfig != nil && config.AppConfig.AppName != "" {
 			appName = config.AppConfig.AppName
@@ -29,7 +27,7 @@ func RegisterRoutes(r *router.Router) {
 		}, fmt.Sprintf("Welcome to %s 🌾", appName))
 	})
 
-	r.Mux.Get("/health", func(w http.ResponseWriter, req *http.Request) {
+	r.Get("/health", func(w http.ResponseWriter, req *http.Request) {
 		response.Success(w, map[string]string{
 			"status": "healthy",
 		}, "System is healthy")
@@ -37,12 +35,12 @@ func RegisterRoutes(r *router.Router) {
 
 	// Static Storage File Server (Serves uploaded assets)
 	fileServer := http.StripPrefix("/storage/", http.FileServer(http.Dir("storage")))
-	r.Mux.Handle("/storage/*", fileServer)
+	r.Handle("/storage/*", fileServer)
 
 	authCtrl := controllers.NewAuthController()
 
 	// Public Auth Endpoints
-	r.Mux.Route("/auth", func(auth chi.Router) {
+	r.Route("/auth", func(auth router.Route) {
 		auth.Post("/register", authCtrl.Register)
 		auth.Post("/login", authCtrl.Login)
 		auth.Post("/refresh", authCtrl.Refresh)
@@ -56,18 +54,18 @@ func RegisterRoutes(r *router.Router) {
 		auth.Post("/password/reset", pwdCtrl.ResetPassword)
 
 		// Protected Auth Endpoint
-		auth.Group(func(protected chi.Router) {
+		auth.Group(func(protected router.Route) {
 			protected.Use(middleware.AuthRequired)
 			protected.Get("/me", authCtrl.Me)
 		})
 	})
 
 	// Protected API Resources (Requires JWT Bearer Token)
-	r.Mux.Group(func(protected chi.Router) {
+	r.Group(func(protected router.Route) {
 		protected.Use(middleware.AuthRequired)
 
 		// Users CRUD Resource
-		protected.Route("/users", func(r chi.Router) {
+		protected.Route("/users", func(r router.Route) {
 			userCtrl := controllers.NewUserController()
 			r.Get("/", userCtrl.Index)
 			r.Get("/all", userCtrl.All)
@@ -79,7 +77,7 @@ func RegisterRoutes(r *router.Router) {
 	})
 
 	// Realtime SSE Pub/Sub Endpoints
-	r.Mux.Route("/realtime", func(rt chi.Router) {
+	r.Route("/realtime", func(rt router.Route) {
 		rtCtrl := controllers.NewExampleRealtimeController()
 		rt.Get("/subscribe", rtCtrl.Subscribe)
 		rt.Post("/chat", rtCtrl.Broadcast)
