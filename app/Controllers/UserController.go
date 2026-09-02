@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"database/sql"
 	"net/http"
 
 	models "padi-template/app/Models"
@@ -53,12 +52,12 @@ func (c *UserController) Show(w http.ResponseWriter, r *http.Request) {
 	}
 
 	item, err := activerecord.Find[models.User](id)
-	if err != nil || item == nil {
-		if err == sql.ErrNoRows || item == nil {
-			response.NotFound(w, "User not found")
-			return
-		}
+	if err != nil {
 		response.InternalServerError(w, "Failed to retrieve User")
+		return
+	}
+	if item == nil {
+		response.NotFound(w, "User not found")
 		return
 	}
 
@@ -97,12 +96,12 @@ func (c *UserController) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	item, err := (models.User{}).Find(id)
-	if err != nil || item == nil || item.ID == 0 {
-		if err == sql.ErrNoRows {
-			response.NotFound(w, "User not found")
-			return
-		}
+	if err != nil {
 		response.InternalServerError(w, "Failed to find User")
+		return
+	}
+	if item == nil || item.ID == 0 {
+		response.NotFound(w, "User not found")
 		return
 	}
 
@@ -152,12 +151,12 @@ func (c *UserController) Destroy(w http.ResponseWriter, r *http.Request) {
 	}
 
 	item, err := (models.User{}).Find(id)
-	if err != nil || item == nil || item.ID == 0 {
-		if err == sql.ErrNoRows {
-			response.NotFound(w, "User not found")
-			return
-		}
+	if err != nil {
 		response.InternalServerError(w, "Failed to find User")
+		return
+	}
+	if item == nil || item.ID == 0 {
+		response.NotFound(w, "User not found")
 		return
 	}
 

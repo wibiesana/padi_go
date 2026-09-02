@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"crypto/rand"
-	"database/sql"
 	"encoding/hex"
 	"net/http"
 	"time"
@@ -209,12 +208,12 @@ func (c *AuthController) Me(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := (models.User{}).Find(claims.UserID)
-	if err != nil || user == nil || user.ID == 0 {
-		if err == sql.ErrNoRows {
-			response.NotFound(w, "User profile not found")
-			return
-		}
+	if err != nil {
 		response.InternalServerError(w, "Failed to retrieve user profile")
+		return
+	}
+	if user == nil || user.ID == 0 {
+		response.NotFound(w, "User profile not found")
 		return
 	}
 

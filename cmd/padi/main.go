@@ -126,6 +126,19 @@ var migrateFreshCmd = &cobra.Command{
 	},
 }
 
+var flagRealtime bool
+
+func askRealtimePrompt(cmd *cobra.Command) bool {
+	if cmd.Flags().Changed("realtime") {
+		return flagRealtime
+	}
+	fmt.Print("📡 Enable Real-time SSE broadcasting hooks for this CRUD? [y/N]: ")
+	var input string
+	_, _ = fmt.Scanln(&input)
+	input = strings.TrimSpace(strings.ToLower(input))
+	return input == "y" || input == "yes"
+}
+
 var generateCrudCmd = &cobra.Command{
 	Use:     "generate:crud [table_name]",
 	Aliases: []string{"g"},
@@ -139,7 +152,9 @@ var generateCrudCmd = &cobra.Command{
 			log.Fatalf("❌ Database connection error: %v", err)
 		}
 
-		gen := generator.New(".")
+		enableRealtime := askRealtimePrompt(cmd)
+
+		gen := generator.New(".").WithRealtime(enableRealtime)
 		if err := gen.GenerateCRUD(tableName); err != nil {
 			log.Fatalf("❌ CRUD Generation failed: %v", err)
 		}
@@ -157,7 +172,9 @@ var generateCrudAllCmd = &cobra.Command{
 			log.Fatalf("❌ Database connection error: %v", err)
 		}
 
-		gen := generator.New(".")
+		enableRealtime := askRealtimePrompt(cmd)
+
+		gen := generator.New(".").WithRealtime(enableRealtime)
 		if err := gen.GenerateAll(); err != nil {
 			log.Fatalf("❌ CRUD Generation All failed: %v", err)
 		}
@@ -384,6 +401,10 @@ var buildCmd = &cobra.Command{
 }
 
 func init() {
+
+	generateCrudCmd.Flags().BoolVarP(&flagRealtime, "realtime", "r", false, "Generate CRUD with real-time SSE broadcasting hooks in controllers")
+	generateCrudAllCmd.Flags().BoolVarP(&flagRealtime, "realtime", "r", false, "Generate CRUD with real-time SSE broadcasting hooks in controllers")
+
 	rootCmd.AddCommand(initCmd)
 	rootCmd.AddCommand(serveCmd)
 	rootCmd.AddCommand(buildCmd)
