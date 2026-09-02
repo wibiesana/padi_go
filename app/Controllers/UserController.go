@@ -31,9 +31,11 @@ func (c *UserController) Index(w http.ResponseWriter, r *http.Request) {
 	response.Paginated(w, records, meta, "User list retrieved successfully")
 }
 
-// All retrieves all users without pagination
+// All retrieves all users without pagination (with optional search and sorting)
 func (c *UserController) All(w http.ResponseWriter, r *http.Request) {
-	records, err := activerecord.All[models.User]()
+	opts := query.ParseOptions(r)
+	searchColumns := []string{"name", "email", "role"}
+	records, err := activerecord.AllWithOpts[models.User](opts, searchColumns...)
 	if err != nil {
 		response.InternalServerError(w, "Failed to retrieve all users")
 		return

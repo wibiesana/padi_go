@@ -80,13 +80,27 @@
                     }
                 ],
                 "url": {
-                    "raw": "{{base_url}}/users/all",
+                    "raw": "{{base_url}}/users/all?search=&sort=id&order=desc",
                     "host": [
                         "{{base_url}}"
                     ],
                     "path": [
                         "users",
                         "all"
+                    ],
+                    "query": [
+                        {
+                            "key": "search",
+                            "value": ""
+                        },
+                        {
+                            "key": "sort",
+                            "value": "id"
+                        },
+                        {
+                            "key": "order",
+                            "value": "desc"
+                        }
                     ]
                 }
             },
