@@ -3,21 +3,18 @@ package main
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
 
-	routes "padi-template/app/Routes"
 	_ "padi-template/database/migrations"
 	"github.com/wibiesana/padi_go_core/config"
 	"github.com/wibiesana/padi_go_core/database"
 	"github.com/wibiesana/padi_go_core/generator"
 	"github.com/wibiesana/padi_go_core/migrator"
 	"github.com/wibiesana/padi_go_core/queue"
-	"github.com/wibiesana/padi_go_core/router"
 	"github.com/wibiesana/padi_go_core/wizard"
 
 	"github.com/spf13/cobra"
@@ -34,44 +31,20 @@ var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Start the Padi HTTP API server",
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := config.Load()
-
-		// Initialize Database Connection
-		db, err := database.Connect(cfg)
-		if err != nil {
-			log.Fatalf("❌ Database connection error: %v", err)
-		}
-		log.Printf("🔌 Connected to database [%s]", cfg.DBConnection)
-
-		// Auto run migrations if in development
-		if cfg.AppEnv == "development" {
-			_ = migrator.RunPending(db)
-		}
-
-		// Setup Router
-		r := router.New(cfg)
-		routes.RegisterRoutes(r)
-
-		addr := fmt.Sprintf(":%s", cfg.AppPort)
-		log.Printf("🌾 %s running on http://localhost%s (Env: %s)", cfg.AppName, addr, cfg.AppEnv)
-
-		server := &http.Server{
-			Addr:         addr,
-			Handler:      r,
-			ReadTimeout:  15 * time.Second,
-			WriteTimeout: 15 * time.Second,
-			IdleTimeout:  60 * time.Second,
-		}
-
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Server error: %v", err)
+		fmt.Println("🚀 Starting Padi HTTP API server...")
+		runCmd := exec.Command("go", "run", "main.go")
+		runCmd.Stdout = os.Stdout
+		runCmd.Stderr = os.Stderr
+		runCmd.Stdin = os.Stdin
+		if err := runCmd.Run(); err != nil {
+			log.Fatalf("Server stopped: %v", err)
 		}
 	},
 }
 
 var migrateCmd = &cobra.Command{
 	Use:   "migrate",
-	Short: "Run database migrations",
+	Short: "Run pending database migrations",
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := config.Load()
 		db, err := database.Connect(cfg)
@@ -86,8 +59,9 @@ var migrateCmd = &cobra.Command{
 }
 
 var migrateRollbackCmd = &cobra.Command{
-	Use:   "migrate:rollback",
-	Short: "Rollback the last batch of database migrations",
+	Use:     "migrate:rollback",
+	Aliases: []string{"rollback"},
+	Short:   "Rollback the last batch of database migrations",
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg := config.Load()
 		db, err := database.Connect(cfg)
@@ -101,10 +75,61 @@ var migrateRollbackCmd = &cobra.Command{
 	},
 }
 
+var migrateStatusCmd = &cobra.Command{
+	Use:   "migrate:status",
+	Short: "Show status of all registered migrations",
+	Run: func(cmd *cobra.Command, args []string) {
+		cfg := config.Load()
+		db, err := database.Connect(cfg)
+		if err != nil {
+			log.Fatalf("❌ Database connection error: %v", err)
+		}
+
+		statuses, err := migrator.Status(db)
+		if err != nil {
+			log.Fatalf("❌ Failed to fetch migration status: %v", err)
+		}
+
+		fmt.Println("---------------------------------------------------------------")
+		fmt.Printf("%-50s | %-6s | %-5s\n", "Migration", "Ran?", "Batch")
+		fmt.Println("---------------------------------------------------------------")
+		for _, s := range statuses {
+			ranStr := "No"
+			if s.Ran {
+				ranStr = "Yes"
+			}
+			batchStr := "-"
+			if s.Batch > 0 {
+				batchStr = fmt.Sprintf("%d", s.Batch)
+			}
+			fmt.Printf("%-50s | %-6s | %-5s\n", s.Name, ranStr, batchStr)
+		}
+		fmt.Println("---------------------------------------------------------------")
+	},
+}
+
+var migrateFreshCmd = &cobra.Command{
+	Use:   "migrate:fresh",
+	Short: "Rollback all migrations and re-run all from start",
+	Run: func(cmd *cobra.Command, args []string) {
+		cfg := config.Load()
+		db, err := database.Connect(cfg)
+		if err != nil {
+			log.Fatalf("❌ Database connection error: %v", err)
+		}
+
+		fmt.Println("🔄 Resetting database migrations...")
+		if err := migrator.Fresh(db); err != nil {
+			log.Fatalf("❌ Fresh migration failed: %v", err)
+		}
+		fmt.Println("✨ All migrations fresh and executed successfully!")
+	},
+}
+
 var generateCrudCmd = &cobra.Command{
 	Use:     "generate:crud [table_name]",
 	Aliases: []string{"g"},
-	Short:   "Generate Base Model, Custom Model, Controller, and Route snippet for a database table",
+	Short:   "Generate Base Model, Custom Model, Controller, Resource, and Route for a database table",
 	Args:    cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		tableName := args[0]
@@ -364,6 +389,8 @@ func init() {
 	rootCmd.AddCommand(buildCmd)
 	rootCmd.AddCommand(migrateCmd)
 	rootCmd.AddCommand(migrateRollbackCmd)
+	rootCmd.AddCommand(migrateStatusCmd)
+	rootCmd.AddCommand(migrateFreshCmd)
 	rootCmd.AddCommand(generateCrudCmd)
 	rootCmd.AddCommand(generateCrudAllCmd)
 	rootCmd.AddCommand(queueWorkCmd)

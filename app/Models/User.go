@@ -50,23 +50,22 @@ func (User) FindByEmail(email string) (*User, error) {
 
 // FindByLogin finds user by username, email, or name
 func (User) FindByLogin(login string) (*User, error) {
-	var item User
 	// Check email first
-	err := activerecord.FindBuilder[User]().Where("email", login).First(&item)
-	if err == nil && item.ID > 0 {
-		return &item, nil
+	item, err := activerecord.NewModelQuery[User]().Where("email", login).First()
+	if err == nil && item != nil && item.ID > 0 {
+		return item, nil
 	}
 
 	// Check username
-	err = activerecord.FindBuilder[User]().Where("username", login).First(&item)
-	if err == nil && item.ID > 0 {
-		return &item, nil
+	item, err = activerecord.NewModelQuery[User]().Where("username", login).First()
+	if err == nil && item != nil && item.ID > 0 {
+		return item, nil
 	}
 
 	// Check name
-	err = activerecord.FindBuilder[User]().Where("name", login).First(&item)
-	if err == nil && item.ID > 0 {
-		return &item, nil
+	item, err = activerecord.NewModelQuery[User]().Where("name", login).First()
+	if err == nil && item != nil && item.ID > 0 {
+		return item, nil
 	}
 
 	return nil, nil
