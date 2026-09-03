@@ -4,7 +4,7 @@ go 1.22.0
 
 require (
 	github.com/spf13/cobra v1.9.1
-	github.com/wibiesana/padi_go_core v0.0.3
+	github.com/wibiesana/padi_go_core v0.0.2
 )
 
 require (
